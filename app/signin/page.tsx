@@ -1,13 +1,15 @@
 "use client";
-
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { Toaster } from 'react-hot-toast';
 
-const SignIn: React.FC = () => {
-  const router = useRouter();
+interface FormData {
+  email: string;
+  password: string;
+}
 
-  const [formData, setFormData] = useState({
+export default function SignIn(){
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     password: '',
   });
@@ -27,20 +29,15 @@ const SignIn: React.FC = () => {
 
     if (!formData.email) {
       newErrors.email = 'Email is required';
-    } else if (formData.email.length < 5) {
-      newErrors.email = 'Email must be at least 5 characters long';
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = 'Email is invalid';
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters long';
     }
 
     setErrors(newErrors);
-
     // Check if there are any errors
     return Object.values(newErrors).every(error => error === '');
   };
@@ -55,19 +52,17 @@ const SignIn: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (validate()) {
       try {
-        const response = await axios.post('http://localhost:3000/teacher/login', {
-          email: formData.email,
-          password: formData.password,
-        });
+        const response = await axios.post('http://localhost:3000/teacher/login',formData);
         console.log('Response:', response.data);
 
-        // Assuming the response contains a token or user data, store it if needed
-        // For example: localStorage.setItem('token', response.data.token);
+        // Assuming the response contains user data including email, you can store it in session
+        localStorage.setItem('email', formData.email);
 
-        // Redirect to dashboard
-        router.push('/dashboard');
+        // Redirect to dashboard or any other page
+        window.location.href = '/dashboard'; // Redirect to dashboard
       } catch (error) {
         setApiError('Login failed. Please check your credentials and try again.');
         console.error('Error:', error);
@@ -78,6 +73,7 @@ const SignIn: React.FC = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+      <Toaster/>
         <h2 className="text-2xl font-bold mb-6 text-center">Sign In</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -117,6 +113,4 @@ const SignIn: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default SignIn;
+}

@@ -21,6 +21,9 @@ const Navbar = () => {
           <Link href="/contact">
             <span className="text-white hover:text-gray-300 cursor-pointer">Contact</span>
           </Link>
+          <Link href="/dashboard/userprofile">
+            <span className="text-white hover:text-gray-300 cursor-pointer">My Profile</span>
+          </Link>
           <Link href="/signup">
             <span className="text-white hover:text-gray-300 cursor-pointer">Sign Up</span>
           </Link>

@@ -3,11 +3,23 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { Toaster } from 'react-hot-toast';
 
-const SignUp: React.FC = () => {
+interface FormData {
+  username: string,
+  email: string,
+  password: string,
+  fullName: string,
+  department: string,
+  uploadCV: File | null,
+  address: string,
+  phoneNumber: string,
+}
+
+export default function SignUp(){
   const router = useRouter();
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     username: '',
     email: '',
     password: '',
@@ -77,7 +89,6 @@ const SignUp: React.FC = () => {
     }
 
     setErrors(newErrors);
-
     // Check if there are any errors
     return Object.values(newErrors).every(error => error === '');
   };
@@ -120,11 +131,7 @@ const SignUp: React.FC = () => {
       formDataToSend.append('phoneNumber', formData.phoneNumber);
 
       try {
-        const response = await axios.post('http://localhost:3000/teacher/addUser', formDataToSend, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        });
+        const response = await axios.post('http://localhost:3000/teacher/addUser', formDataToSend);
         console.log('Response:', response.data);
         router.push('/signin');  // Redirect to sign-in page
       } catch (error) {
@@ -137,6 +144,7 @@ const SignUp: React.FC = () => {
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+      <Toaster/>
         <h2 className="text-2xl font-bold mb-6 text-center">Sign Up</h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
@@ -252,6 +260,4 @@ const SignUp: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default SignUp;
+}

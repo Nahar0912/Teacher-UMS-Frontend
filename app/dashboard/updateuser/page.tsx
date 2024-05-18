@@ -1,74 +1,149 @@
 "use client";
-import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import axios from "axios";
 
-export default function UpdateUser() {
-    const { username } = useParams();
-    const [user, setUser] = useState({
-        email: "",
-        fullName: "",
-        department: "",
-        address: "",
-        phoneNumber: ""
-    });
+import { useState } from 'react';
+import axios from 'axios';
 
-    useEffect(() => {
-        async function fetchUser() {
-            try {
-                const response = await axios.get(`http://localhost:3000/teacher/updateUser/${username}`);
-                setUser(response.data);
-            } catch (error) {
-                console.error("Error fetching user:", error);
-            }
-        }
-        fetchUser();
-    }, [username]);
+export default function Update() {
+  const [username, setUsername] = useState('');
+  const [userExists, setUserExists] = useState(false);
+  const [teacherData, setTeacherData] = useState({
+    email: '',
+    password:'',
+    fullName: '',
+    department: '',
+    address: '',
+    phoneNumber: ''
+  });
 
-    const handleChange = (e:any) => {
-        setUser({
-            ...user,
-            [e.target.name]: e.target.value
+  const checkUserExists = async () => {
+    try {
+      const response = await axios.get(`http://localhost:3000/teacher/getUser/${username}`);
+      if (response.data) {
+        setUserExists(true);
+        setTeacherData({
+          email: response.data.email,
+          password: response.data.password,
+          fullName: response.data.fullName,
+          department: response.data.department,
+          address: response.data.address,
+          phoneNumber: response.data.phoneNumber
         });
-    };
+      } else {
+        setUserExists(false);
+        alert('User does not exist');
+      }
+    } catch (error) {
+      console.error('Error checking user:', error);
+      alert('Error checking user');
+    }
+  };
 
-    const handleSubmit = async (e:any) => {
-        e.preventDefault();
-        try {
-            await axios.put(`http://localhost:3000/teacher/updateUser/${username}`, user);
-            // Redirect or display a success message
-        } catch (error) {
-            console.error("Error updating user:", error);
-        }
-    };
+  const handleInputChange = (e:any) => {
+    const { name, value } = e.target;
+    setTeacherData({
+      ...teacherData,
+      [name]: value
+    });
+  };
 
-    return (
-        <div className="container mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-6 text-center">Update User</h1>
-            <form onSubmit={handleSubmit} className="max-w-lg mx-auto">
-                <div className="mb-4">
-                    <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="username">
-                        Username
-                    </label>
-                    <input
-                        className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                        id="username"
-                        type="text"
-                        name="username"
-                        value={user.username}
-                        onChange={handleChange}
-                    />
-                </div>
-                {/* Add input fields for other user information */}
-                <div className="flex items-center justify-between">
-                    <button
-                        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                        type="submit"
-                    >
-                        Update
-                    </button>
-                </div>
-            </form>
-        </div>
-    );
+  const handleSubmit = async (e:any) => {
+    e.preventDefault();
+    try {
+      const response = await axios.put(`http://localhost:3000/teacher/updateUser/${username}`, teacherData);
+      if (response.status === 200) {
+        alert('User updated successfully');
+      }
+    } catch (error) {
+      console.error('Error updating user:', error);
+      alert('Error updating user');
+    }
+  };
+
+  return (
+    <div className="container mx-auto p-4">
+      <h1 className="text-2xl font-bold mb-4">Update User</h1>
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Enter username"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          className="border p-2 w-full"
+        />
+        <button
+          onClick={checkUserExists}
+          className="bg-blue-500 text-white px-4 py-2 mt-2"
+        >
+          Check Username
+        </button>
+      </div>
+      {userExists && (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block">Email:</label>
+            <input
+              type="email"
+              name="email"
+              value={teacherData.email}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Password:</label>
+            <input
+              type="password"
+              name="password"
+              value={teacherData.password}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Full Name:</label>
+            <input
+              type="text"
+              name="fullName"
+              value={teacherData.fullName}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Department:</label>
+            <input
+              type="text"
+              name="department"
+              value={teacherData.department}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Address:</label>
+            <input
+              type="text"
+              name="address"
+              value={teacherData.address}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <div>
+            <label className="block">Phone Number:</label>
+            <input
+              type="tel"
+              name="phoneNumber"
+              value={teacherData.phoneNumber}
+              onChange={handleInputChange}
+              className="border p-2 w-full"
+            />
+          </div>
+          <button type="submit" className="bg-green-500 text-white px-4 py-2">
+            Update User
+          </button>
+        </form>
+      )}
+    </div>
+  );
 }
